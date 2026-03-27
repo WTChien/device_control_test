@@ -1,0 +1,8 @@
+{
+  "case_id": 1,
+  "prompt": "Please introduce yourself in one sentence.",
+  "response": "please introduce yourself in one\nI’m ChatGPT, an AI assistant here to help you with questions, ideas, and problem-solving across many topics.",
+  "extract_method": "ui_dump",
+  "screenshot": "outputs/case_001/screen.png",
+  "timestamp": "2026-03-27T16:45:53"
+}
