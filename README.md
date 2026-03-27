@@ -2,6 +2,11 @@
 
 使用 Python + ADB 自動化操作聊天機器人 App，並擷取機器人回覆。即使畫面文字無法直接選取或複製，也能透過本工具取得結果。
 
+## 專案目的
+
+本專案主要用於測試國泰 beta 版本聊天流程與回覆擷取能力。
+目前先以 ChatGPT App 作為測試對象，用來驗證整體自動化流程可行性，後續可替換為國泰 beta App 進行正式測試。
+
 ## 工具功能
 
 - 透過 ADB 點擊與輸入事件，將提示詞送到 Android 聊天機器人 App。
@@ -127,3 +132,4 @@ python chatbot_test_runner.py \
 - 縮小 `--response-region` 可以降低 OCR 雜訊。
 - 多數裝置的原生 `adb shell input text` 僅支援 ASCII。
 - 若要送出中文或其他 Unicode 提示詞，請在裝置安裝 ADB Keyboard。若系統偵測到，腳本會暫時切換並自動輸入文字。
+- 若自動偵測不到，可加上 `--adb-keyboard-ime` 指定 IME ID，例如：`--adb-keyboard-ime com.android.adbkeyboard/.AdbIME`。

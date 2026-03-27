@@ -1,8 +1,8 @@
 {
   "case_id": 1,
-  "prompt": "Please introduce yourself in one sentence.",
-  "response": "please introduce yourself in one\nI’m ChatGPT, an AI assistant here to help you with questions, ideas, and problem-solving across many topics.",
+  "prompt": "大香蕉",
+  "response": "構思中文測試ABC中文測試：請只回覆OK\nOK\n大香蕉by",
   "extract_method": "ui_dump",
   "screenshot": "outputs/case_001/screen.png",
-  "timestamp": "2026-03-27T16:45:53"
+  "timestamp": "2026-03-27T17:36:23"
 }

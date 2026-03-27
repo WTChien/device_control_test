@@ -66,6 +66,7 @@ class ADBChatbotTester:
         response_region: Region,
         output_dir: Path,
         ocr_lang: str,
+        adb_keyboard_ime: Optional[str],
     ) -> None:
         self.device_serial = device_serial
         self.package_name = package_name
@@ -75,6 +76,7 @@ class ADBChatbotTester:
         self.response_region = response_region
         self.output_dir = output_dir
         self.ocr_lang = ocr_lang
+        self.adb_keyboard_ime = adb_keyboard_ime
 
     def _adb_prefix(self) -> List[str]:
         cmd = ["adb"]
@@ -113,19 +115,42 @@ class ADBChatbotTester:
         result = self._run_adb(["shell", "ime", "list", "-s"])
         return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
+    def _resolve_adb_keyboard_ime(self) -> Optional[str]:
+        installed_imes = self._list_input_methods()
+        if self.adb_keyboard_ime:
+            return self.adb_keyboard_ime if self.adb_keyboard_ime in installed_imes else None
+
+        if ADB_KEYBOARD_IME in installed_imes:
+            return ADB_KEYBOARD_IME
+
+        for ime in installed_imes:
+            lowered = ime.lower()
+            if "adbkeyboard" in lowered or lowered.endswith("/.adbime"):
+                return ime
+        return None
+
     def _use_adb_keyboard_for_unicode(self, text: str) -> bool:
-        if ADB_KEYBOARD_IME not in self._list_input_methods():
+        target_ime = self._resolve_adb_keyboard_ime()
+        if not target_ime:
             return False
 
         previous_ime = self._get_default_input_method()
         try:
-            self._run_adb(["shell", "ime", "enable", ADB_KEYBOARD_IME], check=False)
-            self._run_adb(["shell", "ime", "set", ADB_KEYBOARD_IME])
-            self._run_adb(["shell", "am", "broadcast", "-a", "ADB_INPUT_TEXT", "--es", "msg", text])
-            return True
+            self._run_adb(["shell", "ime", "enable", target_ime], check=False)
+            self._run_adb(["shell", "ime", "set", target_ime])
+            # Give IME framework a short moment to finish switching before broadcast.
+            time.sleep(0.3)
+            sent = self._run_adb(
+                ["shell", "am", "broadcast", "-a", "ADB_INPUT_TEXT", "--es", "msg", text],
+                check=False,
+            )
+            # Let the IME consume the broadcast before switching back.
+            time.sleep(0.25)
+            return sent.returncode == 0
         finally:
             if previous_ime:
                 self._run_adb(["shell", "ime", "set", previous_ime], check=False)
+                time.sleep(0.2)
 
     def input_text(self, text: str) -> None:
         is_ascii_only = all(ord(ch) < 128 for ch in text)
@@ -326,6 +351,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Run one ChatGPT round automatically with built-in defaults",
     )
+    p.add_argument(
+        "--adb-keyboard-ime",
+        default=None,
+        help="ADB Keyboard IME id, e.g. com.android.adbkeyboard/.AdbIME",
+    )
     p.epilog = (
         "Examples:\n"
         "  python chatbot_test_runner.py --chatgpt-auto-once\n"
@@ -393,6 +423,7 @@ def main() -> int:
         response_region=parse_region(args.response_region),
         output_dir=args.output_dir,
         ocr_lang=args.ocr_lang,
+        adb_keyboard_ime=args.adb_keyboard_ime,
     )
 
     tester.ensure_device_ready()
