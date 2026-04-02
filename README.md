@@ -12,7 +12,7 @@
 - 透過 ADB 點擊與輸入事件，將提示詞送到 Android 聊天機器人 App。
 - 每次送出提示詞後自動擷取螢幕。
 - 兩階段擷取回覆文字：
-  - 第一階段：使用 UIAutomator XML dump 擷取文字。
+  - 第一階段：使用 UIAutomator XML dump 擷取文字，並比對送出前後畫面，只保留新出現的內容。
   - 第二階段：若第一階段失敗，改用截圖區域 OCR。
 - 儲存每個測試案例結果與總結紀錄，方便後續驗證。
 
@@ -117,6 +117,27 @@ python chatbot_test_runner.py \
   --wait-sec 8
 ```
 
+## Cube beta App 範例
+
+若目標 App 是 Cube beta，可先用目前畫面直接驗證 Android UI 是否可抓到文字：
+
+```bash
+python chatbot_test_runner.py --cube-beta-auto-once --capture-current-ui
+```
+
+若要做一輪自動送訊息測試：
+
+```bash
+python chatbot_test_runner.py --cube-beta-auto-once --prompt "hello"
+```
+
+Cube beta 預設會：
+
+- 使用套件 `com.cathaybk.pokemon.mew`
+- 嘗試自動偵測輸入框位置
+- 嘗試自動推算回覆區域
+- 優先找送出按鈕，找不到時退回 Enter 送出
+
 ## 輸出結果
 
 - `outputs/summary.jsonl`：每個測試案例一筆 JSON 紀錄。
@@ -127,6 +148,7 @@ python chatbot_test_runner.py \
 ## 聊天機器人測試注意事項
 
 - 若 App 文字可在 Accessibility tree 中取得，通常會用 `ui_dump` 擷取（品質較好）。
+- 若 App 剛啟動時畫面上已有歡迎詞、建議按鈕或其他靜態文案，腳本會先記錄送出前內容，再從送出後結果中扣除，避免把首頁文案誤判成新回覆。
 - 若看不到（常見於自繪聊天 UI），腳本會自動改用 OCR。
 - 若網路或模型回覆較慢，請提高 `--wait-sec`。
 - 縮小 `--response-region` 可以降低 OCR 雜訊。

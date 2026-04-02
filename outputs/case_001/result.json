@@ -1,8 +1,9 @@
 {
   "case_id": 1,
-  "prompt": "大香蕉",
-  "response": "構思中文測試ABC中文測試：請只回覆OK\nOK\n大香蕉by",
+  "prompt": "你好",
+  "response": "抱歉，您的問題與我目前可以分析的資料無關。\n本服務由 AI 提供，請自行甄別內容真實度，建議您於使用前詳閱 AI 告知聲明 與 注意事項。",
   "extract_method": "ui_dump",
   "screenshot": "outputs/case_001/screen.png",
-  "timestamp": "2026-03-27T17:36:23"
+  "started_at": "2026-04-01T14:07:12",
+  "timestamp": "2026-04-01T14:07:40"
 }
